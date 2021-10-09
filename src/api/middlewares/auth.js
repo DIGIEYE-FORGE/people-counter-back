@@ -20,18 +20,18 @@ const handleJWT = (req, res, next, roles) => async (err, user, info) => {
   });
   const token = req.headers.authorization.split(' ')[1];
   const check = await checkBlackListToken(token);
-  const { organization } = req.headers;
+  // const { organization } = req.headers;
 
   try {
-    if (error || !user || check.isBlack || !organization) throw error;
+    if (error || !user || check.isBlack) throw error;
     await logIn(user, { session: false });
   } catch (e) {
     return next(apiError);
   }
   // TODO disable org role on sysadmin
-  const orgRole = user.roles.filter(
-    (role) => role.organization == organization,
-  );
+  // const orgRole = user.roles.filter(
+  //   (role) => role.organization == organization,
+  // );
   if (roles === LOGGED_USER) {
     if (!req.params.userId) req.params.userId = user.id.toString();
     if (req.params.userId !== user.id.toString()) {
@@ -40,8 +40,8 @@ const handleJWT = (req, res, next, roles) => async (err, user, info) => {
       return next(apiError);
     }
   } else if (
-    (orgRole && orgRole.length === 0) ||
-    !roles.includes(orgRole[0].role)
+    // (orgRole && orgRole.length === 0) ||
+    !roles.includes(user.role)
   ) {
     apiError.status = httpStatus.FORBIDDEN;
     apiError.message = 'Forbidden';

@@ -7,18 +7,26 @@ const { Model } = Sequelize;
 class PasswordResetToken extends Model {
   static get modelFields() {
     return {
+      PasswordResetTokenId: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        field: 'id',
+      },
       resetToken: {
         type: Sequelize.STRING,
         allowNull: false,
         index: true,
+        field: 'reset_token',
       },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        field: 'user_id',
       },
       userEmail: {
         type: Sequelize.STRING,
         allowNull: false,
+        field: 'user_email',
       },
       expires: {
         type: Sequelize.DATE,
@@ -53,7 +61,6 @@ class PasswordResetToken extends Model {
   }
 
   static associate(models) {
-    this.hasMany(models.Area);
     this.belongsTo(models.User);
   }
 }
