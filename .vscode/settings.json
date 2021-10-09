@@ -1,0 +1,15 @@
+{
+  "standard.enable": false,
+  "cSpell.words": [
+    "digieye",
+    "hgetall",
+    "hmset",
+    "kustomize",
+    "maxlength",
+    "middlewares",
+    "Rabbitmq",
+    "uuidv"
+  ],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
