@@ -1,30 +1,25 @@
+const bcrypt = require('bcryptjs');
+const { env } = require('../../config/vars');
 
+const passwd = async (password) => {
+  const rounds = env === 'test' ? 1 : 10;
+  const hash = await bcrypt.hash(password, rounds);
+  return hash;
+};
 
 module.exports = {
-  up: (queryInterface, Sequelize) => queryInterface.bulkInsert(
-    'Users',
-    [
+  up: async (queryInterface) =>
+    queryInterface.bulkInsert('Users', [
       {
-        firstName: 'Admin',
-        lastName: 'User',
+        first_name: 'admin',
+        last_name: 'admin',
         email: 'admin@digieye.io',
-        password: 'e10adc3949ba59abbe56e057f20f883e',
-        isAdmin: true,
+        password: await passwd('2899100'),
+        role: 'SYSADMIN',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-      {
-        firstName: 'User',
-        lastName: 'User',
-        email: 'user@gmail.com',
-        password: 'e10adc3949ba59abbe56e057f20f883e',
-        isAdmin: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ],
-    {},
-  ),
+    ]),
 
-  down: (queryInterface, Sequelize) => queryInterface.bulkDelete('Users', null, {}),
+  down: (queryInterface) => queryInterface.bulkDelete('Users', null, {}),
 };

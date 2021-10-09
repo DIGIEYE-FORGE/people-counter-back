@@ -37,7 +37,7 @@ module.exports = {
       orga_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Organization', // name of Target model
+          model: 'Organizations', // name of Target model
           key: 'id', // key in Target model that we're referencing
         },
         onUpdate: 'CASCADE',
@@ -52,5 +52,5 @@ module.exports = {
         type: Sequelize.DATE,
       },
     }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('Users'),
+  down: (queryInterface) => queryInterface.dropTable('Users'),
 };

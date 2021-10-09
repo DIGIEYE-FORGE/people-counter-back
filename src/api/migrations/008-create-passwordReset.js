@@ -14,9 +14,8 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         references: {
-          model: 'User', // name of Target model
+          model: 'Users', // name of Target model
           key: 'id', // key in Target model that we're referencing
         },
         onUpdate: 'CASCADE',
@@ -38,6 +37,5 @@ module.exports = {
         type: Sequelize.DATE,
       },
     }),
-  down: (queryInterface, Sequelize) =>
-    queryInterface.dropTable('PasswordResetTokens'),
+  down: (queryInterface) => queryInterface.dropTable('PasswordResetTokens'),
 };
