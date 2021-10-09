@@ -6,10 +6,10 @@ const logger = require('../../config/logger');
 
 const { Model } = Sequelize;
 
-class Area extends Model {
+class Place extends Model {
   static get modelFields() {
     return {
-      areaId: {
+      placeId: {
         primaryKey: true,
         type: Sequelize.STRING,
         autoIncrement: true,
@@ -20,12 +20,17 @@ class Area extends Model {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      areaId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        field: 'area_id',
+      },
     };
   }
 
   transform() {
     const transformed = {};
-    const fields = ['areaId', 'name', 'createdAt'];
+    const fields = ['placeId', 'name', 'areaId', 'createdAt'];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
@@ -66,7 +71,7 @@ class Area extends Model {
     try {
       const parsedId = parseInt(id, 10);
       if (typeof parsedId == 'number') {
-        const result = await Area.findOne({
+        const result = await Place.findOne({
           where: {
             id,
           },
@@ -76,7 +81,7 @@ class Area extends Model {
         }
       }
       throw new APIError({
-        message: `${Area.name} does not exist`,
+        message: `${Place.name} does not exist`,
         status: httpStatus.NOT_FOUND,
       });
     } catch (err) {
@@ -91,9 +96,9 @@ class Area extends Model {
   }
 
   static associate(models) {
-    this.hasMany(models.Place, { foreignKey: 'area_id' });
-    this.belongsToMany(models.Permission, { through: 'PermissionAreas' });
+    this.hasMany(models.Device);
+    this.belongsTo(models.Area, { foreignKey: 'area_id' });
   }
 }
 
-module.exports = Area;
+module.exports = Place;
