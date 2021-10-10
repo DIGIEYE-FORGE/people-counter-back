@@ -1,4 +1,4 @@
-name: Deploy to GCP
+name: Deploy to GCP (CR)
 
 on:
   push:
@@ -33,4 +33,4 @@ jobs:
         run: docker push $IMAGE_NAME
 
       - name: Deploy Docker image
-        run: gcloud run deploy ${{ secrets.GCP_APP_NAME }} --region us-central1 --image $IMAGE_NAME
+        run: gcloud compute instances create-with-container ${{ secrets.GCP_APP_NAME }} --container-image $IMAGE_NAME
