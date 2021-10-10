@@ -5,6 +5,7 @@ const moment = require('moment-timezone');
 const jwt = require('jwt-simple');
 const APIError = require('../errors/api-error');
 const { env, jwtSecret, jwtExpirationInterval } = require('../../config/vars');
+const logger = require('../../config/logger');
 
 const { Model } = Sequelize;
 
@@ -81,6 +82,28 @@ class User extends Model {
       sub: this.id,
     };
     return jwt.encode(payload, jwtSecret);
+  }
+
+  static async findById(id) {
+    try {
+      if (typeof id === 'number') {
+        const result = await User.findOne({
+          where: {
+            id,
+          },
+        });
+        if (result) {
+          return result;
+        }
+      }
+      throw new APIError({
+        message: `${User.name} does not exist`,
+        status: httpStatus.NOT_FOUND,
+      });
+    } catch (err) {
+      logger.error(err);
+      throw err;
+    }
   }
 
   static async findAndGenerateToken(options) {
