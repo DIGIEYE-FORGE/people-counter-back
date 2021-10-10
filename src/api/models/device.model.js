@@ -34,7 +34,7 @@ class Device extends Model {
 
   transform() {
     const transformed = {};
-    const fields = ['serial', 'name', 'placeId', 'configId', 'createdAt'];
+    const fields = ['serial', 'name', 'Place', 'Config', 'createdAt'];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
@@ -82,6 +82,7 @@ class Device extends Model {
           where: {
             id,
           },
+          include: ['Config'],
         });
         if (result) {
           return result;
@@ -103,9 +104,9 @@ class Device extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.Config, { foreignKey: 'config_id' });
-    this.hasMany(models.Event);
-    this.belongsTo(models.Place, { foreignKey: 'place_id' });
+    this.belongsTo(models.Config, { foreignKey: 'config_id', as: 'Config' });
+    this.hasMany(models.Event, { foreignKey: 'uuid' });
+    this.belongsTo(models.Place, { foreignKey: 'place_id', as: 'Place' });
   }
 }
 

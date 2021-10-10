@@ -96,7 +96,7 @@ class Place extends Model {
   }
 
   static associate(models) {
-    this.hasMany(models.Device);
+    this.hasMany(models.Device, { foreignKey: 'place_id' });
     this.belongsTo(models.Area, { foreignKey: 'area_id' });
   }
 }
