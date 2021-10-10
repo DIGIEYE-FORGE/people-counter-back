@@ -12,6 +12,7 @@ if (process.env.NODE_ENV !== 'production') {
 module.exports = {
   env: process.env.NODE_ENV,
   port: process.env.PORT,
+  socketPort: process.env.SOCKET_PORT,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpirationInterval: process.env.JWT_EXPIRATION_MINUTES,
   db: {
