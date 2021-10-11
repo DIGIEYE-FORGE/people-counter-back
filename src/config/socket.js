@@ -2,24 +2,27 @@ const net = require('net');
 const dayjs = require('dayjs');
 const { Event, Device } = require('../api/models');
 
+const HEAD_OFFSET = 3;
+const FOOT_OFFSET = 3;
+
 const server = net.createServer((socket) => {
   socket.write('Echo server\r\n');
 
   socket.on('data', (dataBuffer) => {
-    console.log(new Date(), dataBuffer);
-    const HEAD_OFFSET = 3;
-    const FOOT_OFFSET = 3;
     // remove header + footer bytes and decode
     const payload = dataBuffer.toString(
       'utf8',
       HEAD_OFFSET,
       dataBuffer.length - FOOT_OFFSET,
     );
-
     handleMessage(socket, payload);
   });
 
   socket.on('close', () => {});
+
+  socket.on('error', (err) => {
+    console.log(err);
+  });
 });
 
 const handleMessage = (socket, payload) => {
@@ -70,8 +73,8 @@ const generateTimeSyncResponsePayload = (
   `<TIME_SYSNC_RES><uuid>${uuid}</uuid><ret>${ret}</ret><time>${time}</time><uploadInterval>${uploadInterval}</uploadInterval><dataStartTime>${start}</dataStartTime><dataEndTime>${end}</dataEndTime></TIME_SYSNC_RES>`;
 
 const generateResponseBuffer = (strPayload) => {
-  const head = Buffer.from('faf5f6', 'hex');
-  const foot = Buffer.from('faf6f5', 'hex');
+  const head = Buffer.from('fa f5 f6');
+  const foot = Buffer.from('fa f6 f5');
   const payload = Buffer.from(strPayload, 'utf-8');
   return Buffer.concat([head, payload, foot]);
 };

@@ -103,7 +103,7 @@ class Event extends Model {
     const _in = await Event.sum('in', {
       where: {
         time: {
-          $between: [startDate, endDate],
+          [Sequelize.Op.between]: [startDate, endDate],
         },
       },
     });
@@ -111,7 +111,7 @@ class Event extends Model {
     const out = await Event.sum('out', {
       where: {
         time: {
-          $between: [startDate, endDate],
+          [Sequelize.Op.between]: [startDate, endDate],
         },
       },
     });
