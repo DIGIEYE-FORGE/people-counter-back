@@ -40,6 +40,11 @@ class User extends Model {
         allowNull: false,
         values: roles.pop(),
       },
+      organizationId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        field: 'organization_id',
+      },
       verifyToken: {
         type: Sequelize.STRING,
         defaultValue: null,
@@ -65,6 +70,7 @@ class User extends Model {
       'lastName',
       'email',
       'role',
+      'organizationId',
       'createdAt',
     ];
 
@@ -141,6 +147,10 @@ class User extends Model {
 
   static associate(models) {
     this.hasOne(models.Permission);
+    this.belongsTo(models.Organization, {
+      foreignKey: 'organization_id',
+      as: 'Organization',
+    });
   }
 
   static hooks() {

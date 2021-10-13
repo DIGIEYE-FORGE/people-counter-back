@@ -58,11 +58,12 @@ exports.generateRefreshToken = async (user) => {
       userId: userId.toString(),
       email: userEmail,
     };
-    const result = await hmset(token, Object.entries(body).flat());
+    const result = await hmset(token,
+      Object.entries(body).reduce((acc, val) => acc.concat(val), []));
     client.expire(token, 30 * 24 * 60 * 60);
     if (result) return body;
   } catch (err) {
-    logger.error(err);
+    console.log(err);
   }
   return {};
 };

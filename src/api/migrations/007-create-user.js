@@ -26,6 +26,14 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: 'USER',
       },
+      // organization_id: {
+      //   type: Sequelize.INTEGER,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'Organizations', // name of Target model
+      //     key: 'id', // key in Target model that we're referencing
+      //   },
+      // },
       verify_token: {
         type: Sequelize.STRING,
         defaultValue: null,
@@ -34,7 +42,7 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      orga_id: {
+      organization_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Organizations', // name of Target model
