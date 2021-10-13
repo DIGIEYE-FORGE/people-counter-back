@@ -135,5 +135,10 @@ router
     validate(deleteArea),
     controller.remove,
   );
+
+router
+  .route('/organization/:orgId')
+  .get(authorize([ADMIN, USER, SYSADMIN]), controller.listByOrg);
+
 // TODO append device to group and get list of devices by group
 module.exports = router;

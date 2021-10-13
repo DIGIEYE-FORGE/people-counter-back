@@ -3,9 +3,9 @@ const { omitBy, isNil } = require('lodash');
 const httpStatus = require('http-status');
 const APIError = require('../errors/api-error');
 const logger = require('../../config/logger');
+const Area = require('./area.model');
 
 const { Model } = Sequelize;
-
 class Place extends Model {
   static get modelFields() {
     return {
@@ -86,6 +86,45 @@ class Place extends Model {
       });
     } catch (err) {
       logger.error(err);
+      throw err;
+    }
+  }
+
+  static async findByOrg(orgId) {
+    try {
+      const parsedId = parseInt(orgId, 10);
+      if (typeof parsedId == 'number') {
+        const { count, rows } = await Place.findAndCountAll({
+          include: {
+            model: Area,
+            // attributes: ['organization_id'],
+            where: {
+              organizationId: orgId,
+            },
+            // include: {
+            //   model: Organization,
+            //   // attributes: ['']
+            // },
+          },
+        });
+        if (rows) {
+          // return {
+          //   docs: result.map((elem) => elem.transform()),
+          //   count,
+          // };
+          return {
+            areas: rows.map((org) => org.transform()),
+            count,
+          };
+        }
+      }
+      throw new APIError({
+        message: `${Place.name} does not exist`,
+        status: httpStatus.NOT_FOUND,
+      });
+    } catch (err) {
+      // logger.error(err);
+      console.log(err);
       throw err;
     }
   }

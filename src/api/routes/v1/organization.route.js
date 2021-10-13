@@ -1,23 +1,23 @@
 const express = require('express');
 const validate = require('express-validation');
-const controller = require('../../controllers/area.controller');
+const controller = require('../../controllers/organization.controller');
 const { authorize, ADMIN, SYSADMIN, USER } = require('../../middlewares/auth');
 const {
-  listArea,
-  updateArea,
-  deleteArea,
-  createArea,
-} = require('../../validations/area.validation');
+  createOrganization,
+  updateOrganization,
+  deleteOrganization,
+  listOrganization,
+} = require('../../validations/organization.validation');
 
 const router = express.Router();
 
-router.param('areaId', controller.load);
+router.param('organizationId', controller.load);
 
 router
   .route('/')
   /**
-   * @api {get} v1/areas List Device Groups
-   * @apiDescription Get a list of areas
+   * @api {get} v1/organizaitions List Device Groups
+   * @apiDescription Get a list of Organizations
    * @apiVersion 1.0.0
    * @apiName List Device Groups
    * @apiGroup Device Groups
@@ -35,12 +35,16 @@ router
    * @apiError (Unauthorized 401)  Unauthorized  Only authenticated user can access the data
    * @apiError (Forbidden 403)     Forbidden     Only admins can access the data
    */
-  .get(authorize([ADMIN, SYSADMIN]), validate(listArea), controller.list)
+  .get(
+    authorize([ADMIN, SYSADMIN]),
+    validate(listOrganization),
+    controller.list,
+  )
   /**
    * @api {post} v1/users Create device Group
    * @apiDescription Create a new device Group
    * @apiVersion 1.0.0
-   * @apiName CreateArea
+   * @apiName CreateOrg
    * @apiGroup Device Groups
    * @apiPermission  ADMIN | USER | OPERATOR
    *
@@ -61,10 +65,14 @@ router
    * @apiError (Unauthorized 401)  Unauthorized     Only authenticated users can create the data
    * @apiError (Forbidden 403)     Forbidden        Only admins can create the data
    */
-  .post(authorize([ADMIN, SYSADMIN]), validate(createArea), controller.create);
+  .post(
+    authorize([ADMIN, SYSADMIN]),
+    validate(createOrganization),
+    controller.create,
+  );
 
 router
-  .route('/:areaId')
+  .route('/:organizationId')
   /**
    * @api {get} v1/users/:id Get User
    * @apiDescription Get user information
@@ -113,7 +121,11 @@ router
    * @apiError (Forbidden 403)    Forbidden    Only user with same id or admins can modify the data
    * @apiError (Not Found 404)    NotFound     User does not exist
    */
-  .patch(authorize([ADMIN, SYSADMIN]), validate(updateArea), controller.update)
+  .patch(
+    authorize([ADMIN, SYSADMIN]),
+    validate(updateOrganization),
+    controller.update,
+  )
   /**
    * @api {patch} v1/users/:id Delete User
    * @apiDescription Delete a user
@@ -132,7 +144,7 @@ router
    */
   .delete(
     authorize([ADMIN, SYSADMIN]),
-    validate(deleteArea),
+    validate(deleteOrganization),
     controller.remove,
   );
 // TODO append device to group and get list of devices by group
