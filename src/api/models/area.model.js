@@ -16,6 +16,11 @@ class Area extends Model {
         allowNull: false,
         field: 'id',
       },
+      organizationId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        field: 'organization_id',
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -85,6 +90,37 @@ class Area extends Model {
     }
   }
 
+  static async findByOrg(orgId) {
+    try {
+      const parsedId = parseInt(orgId, 10);
+      if (typeof parsedId == 'number') {
+        const { count, rows } = await Area.findAndCountAll({
+          where: {
+            organizationId: orgId,
+          },
+        });
+        if (rows) {
+          // return {
+          //   docs: result.map((elem) => elem.transform()),
+          //   count,
+          // };
+          return {
+            areas: rows.map((org) => org.transform()),
+            count,
+          };
+        }
+      }
+      throw new APIError({
+        message: `${Area.name} does not exist`,
+        status: httpStatus.NOT_FOUND,
+      });
+    } catch (err) {
+      // logger.error(err);
+      console.log(err);
+      throw err;
+    }
+  }
+
   static init(sequelize) {
     const options = { ...this.modelOptions, sequelize };
     return super.init(this.modelFields, options);
@@ -93,6 +129,9 @@ class Area extends Model {
   static associate(models) {
     this.hasMany(models.Place, { foreignKey: 'area_id' });
     this.belongsToMany(models.Permission, { through: 'PermissionAreas' });
+    this.belongsTo(models.Organization, {
+      foreignKey: 'organization_id',
+    });
   }
 }
 
