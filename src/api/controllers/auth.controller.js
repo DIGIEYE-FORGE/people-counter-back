@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const moment = require('moment-timezone');
 const { omit } = require('lodash');
+const bcrypt = require('bcryptjs');
 const { PasswordResetToken, User, Organization } = require('../models');
 const { jwtExpirationInterval } = require('../../config/vars');
 const APIError = require('../errors/api-error');
@@ -9,6 +10,7 @@ const {
   generateRefreshToken,
   removeRefreshToken,
 } = require('../../config/redis');
+const { env } = require('../../config/vars');
 
 /**
  * Returns a formatted object with tokens
@@ -118,8 +120,7 @@ exports.logout = async (req, res, next) => {
 exports.sendPasswordReset = async (req, res, next) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email }).exec();
-
+    const user = await User.findOne({ where: { email } });
     if (user) {
       const passwordResetObj = await PasswordResetToken.generate(user);
       emailProvider.sendPasswordReset(passwordResetObj);
@@ -138,10 +139,22 @@ exports.sendPasswordReset = async (req, res, next) => {
 exports.resetPassword = async (req, res, next) => {
   try {
     const { email, password, resetToken } = req.body;
-    const resetTokenObject = await PasswordResetToken.findOneAndRemove({
-      userEmail: email,
-      resetToken,
+    const resetTokenObject = await PasswordResetToken.findOne({
+      where: { user_email: email, reset_token: resetToken },
+      attributes: [
+        'id',
+        'reset_token',
+        'user_id',
+        'user_email',
+        'expires',
+        'createdAt',
+        'updatedAt',
+      ],
     });
+    await PasswordResetToken.destroy({
+      where: { id: resetTokenObject.dataValues.id },
+    });
+    console.log(resetTokenObject.dataValues.user_email);
 
     const err = {
       status: httpStatus.UNAUTHORIZED,
@@ -157,9 +170,11 @@ exports.resetPassword = async (req, res, next) => {
     }
 
     const user = await User.findOne({
-      email: resetTokenObject.userEmail,
-    }).exec();
-    user.password = password;
+      where: { email: resetTokenObject.dataValues.user_email },
+    });
+    const rounds = env === 'test' ? 1 : 10;
+    const hash = await bcrypt.hash(password, rounds);
+    user.password = hash;
     await user.save();
     emailProvider.sendPasswordChangeEmail(user);
 

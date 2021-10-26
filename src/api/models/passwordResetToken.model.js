@@ -41,7 +41,7 @@ class PasswordResetToken extends Model {
    * @returns {ResetToken}
    */
   static async generate(user) {
-    const userId = user._id;
+    const userId = user.id;
     const userEmail = user.email;
     const resetToken = `${userId}.${crypto.randomBytes(40).toString('hex')}`;
     const expires = moment().add(2, 'hours').toDate();

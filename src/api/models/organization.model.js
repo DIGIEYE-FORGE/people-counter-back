@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+
 const { Model } = Sequelize;
 
 class Organization extends Model {

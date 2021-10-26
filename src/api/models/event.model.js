@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 const Sequelize = require('sequelize');
 const { Model } = Sequelize;
 
@@ -81,7 +82,7 @@ class Event extends Model {
       },
       order: [['createdAt', 'ASC']],
       offset: perPage * (page - 1),
-      limit: perPage,
+      limit: parseInt(perPage, 10),
     });
 
     return {

@@ -8,7 +8,6 @@ const { emailConfig } = require('../../../config/vars');
 // such as an email service API or nodemailer-sendgrid-transport
 
 const transporter = nodemailer.createTransport({
-  port: emailConfig.port,
   host: emailConfig.host,
   auth: {
     user: emailConfig.username,
@@ -45,7 +44,7 @@ exports.sendPasswordReset = async (passwordResetObject) => {
         productName: 'HardIot',
         // passwordResetUrl should be a URL to your app that displays a view where they
         // can enter a new password along with passing the resetToken in the params
-        passwordResetUrl: `https://hardiot.com/new-password/view?resetToken=${passwordResetObject.resetToken}`,
+        passwordResetUrl: `http://localhost:8080/auth/resetpassword?resetToken=${passwordResetObject.resetToken}`,
       },
     })
     .catch(() => console.log('error sending password reset email'));

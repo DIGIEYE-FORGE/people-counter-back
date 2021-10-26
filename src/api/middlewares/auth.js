@@ -18,11 +18,10 @@ const handleJWT = (req, res, next, roles) => async (err, user, info) => {
     status: httpStatus.UNAUTHORIZED,
     stack: error ? error.stack : undefined,
   });
-  const token = req.headers.authorization.split(' ')[1];
-  const check = await checkBlackListToken(token);
   // const { organization } = req.headers;
-
   try {
+    const token = req.headers.authorization.split(' ')[1];
+    const check = await checkBlackListToken(token);
     if (error || !user || check.isBlack) throw error;
     await logIn(user, { session: false });
   } catch (e) {

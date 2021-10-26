@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const Sequelize = require('sequelize');
 const httpStatus = require('http-status');
 const bcrypt = require('bcryptjs');
@@ -157,6 +158,7 @@ class User extends Model {
     User.beforeCreate(async (user, options) => {
       const rounds = env === 'test' ? 1 : 10;
       const hash = await bcrypt.hash(user.password, rounds);
+      // eslint-disable-next-line no-param-reassign
       user.password = hash;
     });
   }
