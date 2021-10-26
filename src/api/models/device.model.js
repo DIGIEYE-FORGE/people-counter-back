@@ -66,8 +66,7 @@ class Device extends Model {
     });
     return {
       docs: Object.values(rows).map((deviceProfile) =>
-        deviceProfile.transform(),
-      ),
+        deviceProfile.transform()),
       count,
       page,
       perPage,

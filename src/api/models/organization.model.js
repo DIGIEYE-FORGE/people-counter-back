@@ -1,8 +1,15 @@
 const Sequelize = require('sequelize');
+<<<<<<< HEAD
 
 const { Model } = Sequelize;
+=======
+const { omitBy, isNil } = require('lodash');
+const httpStatus = require('http-status');
+const APIError = require('../errors/api-error');
+const BaseModel = require('./baseModel');
+>>>>>>> 83499610bbed6e1c45dd6908fb795abc25277c7d
 
-class Organization extends Model {
+class Organization extends BaseModel {
   static get modelFields() {
     return {
       name: {
@@ -31,8 +38,8 @@ class Organization extends Model {
   }
 
   transform() {
-    const transformed = {};
-    const fields = [
+    return super.transform([
+      'id',
       'name',
       'lat',
       'lng',
@@ -40,22 +47,25 @@ class Organization extends Model {
       'country',
       'zipCode',
       'createdAt',
-    ];
-
-    fields.forEach((field) => {
-      transformed[field] = this[field];
-    });
-
-    return transformed;
+    ]);
   }
 
-  static async list({ page = 1, perPage = 30, name = '' }) {
-    const { count, rows } = await Organization.findAndCountAll({
-      where: {
-        name: {
-          [Sequelize.Op.iLike]: `%${name}%`,
-        },
+  static async list({ page = 1, perPage = 30, city, country, name }) {
+    const where = omitBy(
+      {
+        city,
+        country,
       },
+      isNil,
+    );
+    if (name) {
+      where.name = {
+        [Sequelize.Op.like]: `%${name}%`,
+      };
+    }
+
+    const { count, rows } = await Organization.findAndCountAll({
+      where,
       order: [['createdAt', 'ASC']],
       offset: perPage * (page * 1 - 1),
       limit: perPage * 1,
@@ -74,8 +84,52 @@ class Organization extends Model {
     return super.init(this.modelFields, options);
   }
 
+  static checkDuplicate(error) {
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return new APIError({
+        message: 'Validation Error',
+        errors: [
+          error.errors.map((err) => ({
+            field: err.path.split('.')[1],
+            location: 'body',
+            messages: [`"${err.value}" already exists`],
+          })),
+        ],
+        status: httpStatus.CONFLICT,
+        isPublic: true,
+        stack: error.stack,
+      });
+    }
+    return error;
+  }
+
+  static async findById(id) {
+    try {
+      const parsedId = parseInt(id, 10);
+      if (typeof parsedId == 'number') {
+        const result = await Organization.findOne({
+          where: {
+            id,
+          },
+        });
+        if (result) {
+          return result;
+        }
+      }
+      throw new APIError({
+        message: `${Organization.name} does not exist`,
+        status: httpStatus.NOT_FOUND,
+      });
+    } catch (err) {
+      // logger.error(err);
+      console.log(err);
+      throw err;
+    }
+  }
+
   static associate(models) {
-    this.belongsTo(models.Device, { foreignKey: 'uuid' });
+    this.hasMany(models.Area, { foreignKey: 'organization_id' });
+    this.hasMany(models.User, { foreignKey: 'organization_id' });
   }
 }
 

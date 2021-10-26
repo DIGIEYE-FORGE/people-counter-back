@@ -5,6 +5,7 @@ const placeRoutes = require('./place.route');
 const deviceRoutes = require('./device.route');
 const configRoutes = require('./config.route');
 const eventRoutes = require('./event.route');
+const organizationRoutes = require('./organization.route');
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use('/devices', deviceRoutes);
 router.use('/configs', configRoutes);
 router.use('/events', eventRoutes);
 router.use('/auth', authRoutes);
+router.use('/organizations', organizationRoutes);
 
 module.exports = router;

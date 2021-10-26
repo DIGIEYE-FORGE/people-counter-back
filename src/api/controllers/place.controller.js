@@ -70,6 +70,19 @@ exports.list = async (req, res, next) => {
 };
 
 /**
+ * Get area list by organization
+ * @public
+ */
+exports.listByOrg = async (req, res, next) => {
+  try {
+    const areas = await Place.findByOrg(req.params.orgId);
+    res.json(areas);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Delete place
  * @public
  */
