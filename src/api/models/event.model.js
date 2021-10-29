@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 const Sequelize = require('sequelize');
+
 const { Model } = Sequelize;
+const Device = require('./device.model');
 
 class Event extends Model {
   static get modelFields() {
@@ -63,8 +65,14 @@ class Event extends Model {
     return transformed;
   }
 
-  static async list({ page = 1, perPage = 30, startDate, endDate }) {
+  static async list({ page = 1, perPage = 30, startDate, endDate }, orgId) {
     const now = new Date();
+    if (endDate && startDate) {
+      startDate = new Date(startDate.replace('+', ' '));
+      startDate = startDate.getTime() + 60 * 60 * 1000;
+      endDate = new Date(endDate.replace('+', ' '));
+      endDate = endDate.getTime() + 60 * 60 * 1000;
+    }
     if (!endDate) {
       endDate = new Date();
       endDate.setHours(23, 59, 59);
@@ -74,10 +82,19 @@ class Event extends Model {
       startDate = new Date(now.getTime());
     }
 
+    const devices = await Device.findByOrg(orgId);
+    const deviceArr = [];
+    devices.forEach((device) => {
+      deviceArr.push(device.serial);
+    });
+
     const { count, rows } = await Event.findAndCountAll({
       where: {
         time: {
           [Sequelize.Op.between]: [startDate, endDate],
+        },
+        device_id: {
+          [Sequelize.Op.in]: deviceArr,
         },
       },
       order: [['createdAt', 'ASC']],
@@ -93,18 +110,35 @@ class Event extends Model {
     };
   }
 
-  static async inOut({ startDate, endDate }) {
+  static async inOut({ startDate, endDate }, orgId) {
+    // console.log(`start : ${startDate} ======= end: ${endDate}`);
     const now = new Date();
+    if (endDate && startDate) {
+      startDate = new Date(startDate.replace('+', ' '));
+      startDate = startDate.getTime() + 60 * 60 * 1000;
+      endDate = new Date(endDate.replace('+', ' '));
+      endDate = endDate.getTime() + 60 * 60 * 1000;
+    }
     if (!endDate) endDate = new Date(now.getTime());
     if (!startDate) {
       now.setTime(now.getTime() - 24 * 60 * 60 * 1000 * 30);
       startDate = new Date(now.getTime());
     }
-
+    // console.log(new Date(startDate.replace('+', ' ')));
+    // console.log('--------------');
+    // console.log(new Date(endDate.replace('+', ' ')));
+    const devices = await Device.findByOrg(orgId);
+    const deviceArr = [];
+    devices.forEach((device) => {
+      deviceArr.push(device.serial);
+    });
     const _in = await Event.sum('in', {
       where: {
         time: {
           [Sequelize.Op.between]: [startDate, endDate],
+        },
+        device_id: {
+          [Sequelize.Op.in]: deviceArr,
         },
       },
     });
@@ -113,6 +147,9 @@ class Event extends Model {
       where: {
         time: {
           [Sequelize.Op.between]: [startDate, endDate],
+        },
+        device_id: {
+          [Sequelize.Op.in]: deviceArr,
         },
       },
     });

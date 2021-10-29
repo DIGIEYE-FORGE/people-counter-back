@@ -1,13 +1,9 @@
 const Sequelize = require('sequelize');
-<<<<<<< HEAD
 
-const { Model } = Sequelize;
-=======
 const { omitBy, isNil } = require('lodash');
 const httpStatus = require('http-status');
 const APIError = require('../errors/api-error');
 const BaseModel = require('./baseModel');
->>>>>>> 83499610bbed6e1c45dd6908fb795abc25277c7d
 
 class Organization extends BaseModel {
   static get modelFields() {

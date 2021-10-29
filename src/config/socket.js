@@ -25,6 +25,7 @@ const server = net.createServer((socket) => {
   });
 });
 
+// eslint-disable-next-line consistent-return
 const handleMessage = (socket, payload) => {
   if (payload.includes('UP_SENSOR_DATA_REQ')) {
     return handleSensorDataUpload(socket, payload);
@@ -38,6 +39,7 @@ const handleMessage = (socket, payload) => {
 };
 
 const getValueInTag = (str, tagName) =>
+  // eslint-disable-next-line no-useless-escape
   str.match(new RegExp(`(?<=<${tagName}>)(.*)(?=<\/${tagName}>)`))[0];
 
 const handleSensorDataUpload = async (socket, payload) => {
@@ -94,4 +96,5 @@ const handleSensorTimeSync = async (socket, payload) => {
   const response = generateResponseBuffer(responsePayload);
   socket.write(response);
 };
+
 module.exports = server;

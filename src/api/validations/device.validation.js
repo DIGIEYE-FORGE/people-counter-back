@@ -6,8 +6,8 @@ module.exports = {
     body: {
       serial: Joi.string()
         .min(12)
-        .max(12)
-        .regex(/^[a-fA-F0-9]{12}$/)
+        .max(13)
+        .regex(/^[a-fA-F0-9]{13}$/)
         .required(),
       name: Joi.string().min(3).max(32).required(),
       placeId: Joi.number().required(),
@@ -19,15 +19,15 @@ module.exports = {
     body: {
       serial: Joi.string()
         .min(12)
-        .max(12)
-        .regex(/^[a-fA-F0-9]{12}$/)
+        .max(13)
+        .regex(/^[a-fA-F0-9]{13}$/)
         .required(),
       name: Joi.string().min(3).max(32).required(),
       placeId: Joi.number(),
     },
     params: {
       deviceId: Joi.string()
-        .regex(/^[a-fA-F0-9]{12}$/)
+        .regex(/^[a-fA-F0-9]{13}$/)
         .required(),
     },
   },
@@ -36,7 +36,7 @@ module.exports = {
   deleteDevice: {
     params: {
       deviceId: Joi.string()
-        .regex(/^[a-fA-F0-9]{12}$/)
+        .regex(/^[a-fA-F0-9]{13}$/)
         .required(),
     },
   },
