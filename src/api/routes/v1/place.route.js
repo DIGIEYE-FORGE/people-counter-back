@@ -146,4 +146,8 @@ router
     controller.remove,
   );
 
+router
+  .route('/organization/:orgId')
+  .get(authorize([ADMIN, USER, SYSADMIN]), controller.listByOrg);
+
 module.exports = router;

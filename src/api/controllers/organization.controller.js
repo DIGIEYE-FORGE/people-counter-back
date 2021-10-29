@@ -1,14 +1,14 @@
 const httpStatus = require('http-status');
-const Area = require('../models/area.model');
+const { Organization } = require('../models');
 
 /**
- * Load area and append to req.
+ * Load organization and append to req.
  * @public
  */
 exports.load = async (req, res, next, id) => {
   try {
-    const area = await Area.findById(id);
-    req.locals = { area };
+    const organization = await Organization.findById(id);
+    req.locals = { organization };
     return next();
   } catch (error) {
     return next(error);
@@ -16,62 +16,61 @@ exports.load = async (req, res, next, id) => {
 };
 
 /**
- * Get area
+ * Get organization
  * @public
  */
-exports.get = (req, res) => res.json(req.locals.area);
+exports.get = (req, res) => res.json(req.locals.organization);
 
 /**
- * Create new area
+ * Create new organization
  * @public
  */
 exports.create = async (req, res, next) => {
   try {
-    const area = new Area(req.body);
-    const savedArea = await area.save();
+    const organization = new Organization(req.body);
+    const savedOrg = await organization.save();
     res.status(httpStatus.CREATED);
-    res.json(savedArea.transform());
+    res.json(savedOrg.transform());
   } catch (error) {
-    next(Area.checkDuplicateEmail(error));
+    next(Organization.checkDuplicate(error));
   }
 };
 
 /**
- * Update existing area
+ * Update existing organization
  * @public
  */
 exports.update = (req, res, next) => {
-  const { area } = req.locals;
-  area
+  const { organization } = req.locals;
+  organization
     .update(req.body)
-    .then((savedArea) => res.json(savedArea))
+    .then((savedOrg) => res.json(savedOrg))
     .catch((e) => {
-      console.log(e);
-      next(Area.checkDuplicateEmail(e));
+      next(Organization.checkDuplicate(e));
     });
 };
 
 /**
- * Get area list
+ * Get organization list
  * @public
  */
 exports.list = async (req, res, next) => {
   try {
-    const areas = await Area.findAll(req.query);
-    res.json(areas);
+    const organizations = await Organization.list(req.query);
+    res.json(organizations);
   } catch (error) {
     next(error);
   }
 };
 
 /**
- * Delete area
+ * Delete organization
  * @public
  */
 exports.remove = (req, res, next) => {
-  const { area } = req.locals;
+  const { organization } = req.locals;
 
-  area
+  organization
     .destroy()
     .then(() => res.status(httpStatus.NO_CONTENT).end())
     .catch((e) => next(e));

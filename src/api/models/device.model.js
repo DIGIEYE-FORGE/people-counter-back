@@ -5,6 +5,8 @@ const APIError = require('../errors/api-error');
 const logger = require('../../config/logger');
 
 const { Model } = Sequelize;
+const Place = require('./place.model');
+const Area = require('./area.model');
 
 class Device extends Model {
   static get modelFields() {
@@ -66,8 +68,7 @@ class Device extends Model {
     });
     return {
       docs: Object.values(rows).map((deviceProfile) =>
-        deviceProfile.transform(),
-      ),
+        deviceProfile.transform()),
       count,
       page,
       perPage,
@@ -83,6 +84,38 @@ class Device extends Model {
             id,
           },
           include: ['Config'],
+        });
+        if (result) {
+          return result;
+        }
+      }
+      throw new APIError({
+        message: `${Device.name} does not exist`,
+        status: httpStatus.NOT_FOUND,
+      });
+    } catch (err) {
+      logger.error(err);
+      throw err;
+    }
+  }
+
+  static async findByOrg(id) {
+    try {
+      const parsedId = parseInt(id, 10);
+      if (typeof parsedId == 'number') {
+        const result = await Device.findAll({
+          include: [
+            {
+              model: Place,
+              as: 'Place',
+              include: [
+                {
+                  model: Area,
+                },
+              ],
+            },
+          ],
+          where: { '$Place.Area.organization_id$': parsedId },
         });
         if (result) {
           return result;

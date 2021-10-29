@@ -32,7 +32,8 @@ exports.create = async (req, res, next) => {
     res.status(httpStatus.CREATED);
     res.json(savedArea.transform());
   } catch (error) {
-    next(Area.checkDuplicateEmail(error));
+    console.log(error);
+    // next(Area.checkDuplicateEmail(error));
   }
 };
 
@@ -47,7 +48,7 @@ exports.update = (req, res, next) => {
     .then((savedArea) => res.json(savedArea))
     .catch((e) => {
       console.log(e);
-      next(Area.checkDuplicateEmail(e));
+      // next(Area.checkDuplicateEmail(e));
     });
 };
 
@@ -58,6 +59,19 @@ exports.update = (req, res, next) => {
 exports.list = async (req, res, next) => {
   try {
     const areas = await Area.findAll(req.query);
+    res.json(areas);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get area list by organization
+ * @public
+ */
+exports.listByOrg = async (req, res, next) => {
+  try {
+    const areas = await Area.findByOrg(req.params.orgId);
     res.json(areas);
   } catch (error) {
     next(error);

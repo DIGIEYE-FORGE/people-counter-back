@@ -1,7 +1,8 @@
 const httpStatus = require('http-status');
 const moment = require('moment-timezone');
 const { omit } = require('lodash');
-const { PasswordResetToken, User } = require('../models');
+const bcrypt = require('bcryptjs');
+const { PasswordResetToken, User, Organization } = require('../models');
 const { jwtExpirationInterval } = require('../../config/vars');
 const APIError = require('../errors/api-error');
 const emailProvider = require('../services/emails/emailProvider');
@@ -9,6 +10,7 @@ const {
   generateRefreshToken,
   removeRefreshToken,
 } = require('../../config/redis');
+const { env } = require('../../config/vars');
 
 /**
  * Returns a formatted object with tokens
@@ -17,6 +19,7 @@ const {
 async function generateTokenResponse(user, accessToken) {
   const tokenType = 'Bearer';
   const refreshToken = (await generateRefreshToken(user)).token;
+  // console.log(refreshToken);
   const expiresIn = moment().add(jwtExpirationInterval, 'minutes');
   return {
     tokenType,
@@ -30,21 +33,37 @@ async function generateTokenResponse(user, accessToken) {
  * Returns jwt token if registration was successful
  * @public
  */
+// eslint-disable-next-line consistent-return
 exports.register = async (req, res, next) => {
-  const userData = omit(req.body, 'role');
+  const data = omit(req.body, 'role');
   try {
+    const orgData = {
+      name: data.name,
+      lat: data.lat,
+      lng: data.lng,
+      zipCode: data.zipCode,
+      country: data.country,
+      city: data.city,
+    };
+    const org = new Organization(orgData);
+    await org.save();
+    const userData = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      organizationId: org.dataValues.id,
+    };
     const user = new User(userData);
-    user.roles.push({
-      role: 'OWNER',
-      state: true,
-    });
+    user.role = 'ADMIN';
     await user.save();
     const userTransformed = user.transform();
     const token = await generateTokenResponse(user, user.token());
     res.status(httpStatus.CREATED);
     return res.json({ token, user: userTransformed });
   } catch (error) {
-    next(User.checkDuplicateEmail(error));
+    console.log(error);
+    // next(User.checkDuplicateEmail(error));
   }
 };
 
@@ -101,8 +120,7 @@ exports.logout = async (req, res, next) => {
 exports.sendPasswordReset = async (req, res, next) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email }).exec();
-
+    const user = await User.findOne({ where: { email } });
     if (user) {
       const passwordResetObj = await PasswordResetToken.generate(user);
       emailProvider.sendPasswordReset(passwordResetObj);
@@ -121,10 +139,22 @@ exports.sendPasswordReset = async (req, res, next) => {
 exports.resetPassword = async (req, res, next) => {
   try {
     const { email, password, resetToken } = req.body;
-    const resetTokenObject = await PasswordResetToken.findOneAndRemove({
-      userEmail: email,
-      resetToken,
+    const resetTokenObject = await PasswordResetToken.findOne({
+      where: { user_email: email, reset_token: resetToken },
+      attributes: [
+        'id',
+        'reset_token',
+        'user_id',
+        'user_email',
+        'expires',
+        'createdAt',
+        'updatedAt',
+      ],
     });
+    await PasswordResetToken.destroy({
+      where: { id: resetTokenObject.dataValues.id },
+    });
+    console.log(resetTokenObject.dataValues.user_email);
 
     const err = {
       status: httpStatus.UNAUTHORIZED,
@@ -140,9 +170,11 @@ exports.resetPassword = async (req, res, next) => {
     }
 
     const user = await User.findOne({
-      email: resetTokenObject.userEmail,
-    }).exec();
-    user.password = password;
+      where: { email: resetTokenObject.dataValues.user_email },
+    });
+    const rounds = env === 'test' ? 1 : 10;
+    const hash = await bcrypt.hash(password, rounds);
+    user.password = hash;
     await user.save();
     emailProvider.sendPasswordChangeEmail(user);
 

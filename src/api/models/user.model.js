@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const Sequelize = require('sequelize');
 const httpStatus = require('http-status');
 const bcrypt = require('bcryptjs');
@@ -40,6 +41,11 @@ class User extends Model {
         allowNull: false,
         values: roles.pop(),
       },
+      organizationId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        field: 'organization_id',
+      },
       verifyToken: {
         type: Sequelize.STRING,
         defaultValue: null,
@@ -65,6 +71,7 @@ class User extends Model {
       'lastName',
       'email',
       'role',
+      'organizationId',
       'createdAt',
     ];
 
@@ -141,12 +148,17 @@ class User extends Model {
 
   static associate(models) {
     this.hasOne(models.Permission);
+    this.belongsTo(models.Organization, {
+      foreignKey: 'organization_id',
+      as: 'Organization',
+    });
   }
 
   static hooks() {
     User.beforeCreate(async (user, options) => {
       const rounds = env === 'test' ? 1 : 10;
       const hash = await bcrypt.hash(user.password, rounds);
+      // eslint-disable-next-line no-param-reassign
       user.password = hash;
     });
   }

@@ -4,6 +4,8 @@ module.exports = {
   // POST /v1/auth/register
   register: {
     body: {
+      firstName: Joi.string().required().min(4).max(128),
+      lastName: Joi.string().required().min(4).max(128),
       email: Joi.string().email().required(),
       password: Joi.string().required().min(6).max(128),
       name: Joi.string().required().min(6).max(128),
@@ -12,7 +14,6 @@ module.exports = {
       zipCode: Joi.number(),
       country: Joi.string().min(6).max(128),
       city: Joi.string().min(6).max(128),
-      fullName: Joi.string().required().min(6).max(128),
     },
   },
 

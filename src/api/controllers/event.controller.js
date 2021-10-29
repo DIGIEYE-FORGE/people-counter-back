@@ -6,7 +6,7 @@ const { Event } = require('../models');
  */
 exports.list = async (req, res, next) => {
   try {
-    const events = await Event.list(req.query);
+    const events = await Event.list(req.query, req.user.organization_id);
     res.json(events);
   } catch (error) {
     next(error);
@@ -45,7 +45,8 @@ exports.listByPlace = async (req, res, next) => {
  */
 exports.allInOut = async (req, res, next) => {
   try {
-    const events = await Event.inOut(req.query);
+    console.log(req.user.organization_id);
+    const events = await Event.inOut(req.query, req.user.organization_id);
     res.json(events);
   } catch (error) {
     next(error);

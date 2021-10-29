@@ -16,6 +16,19 @@ exports.load = async (req, res, next, id) => {
 };
 
 /**
+ * Load device and append to req.
+ * @public
+ */
+exports.getByOrg = async (req, res) => {
+  try {
+    const devices = await Device.findByOrg(req.body.id);
+    res.json(devices);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+/**
  * Get device
  * @public
  */

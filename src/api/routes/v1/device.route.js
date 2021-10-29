@@ -126,4 +126,6 @@ router
     controller.remove,
   );
 
+router.route('/orgs').post(controller.getByOrg);
+
 module.exports = router;

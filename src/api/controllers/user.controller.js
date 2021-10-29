@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
 const { omit } = require('lodash');
+const bcrypt = require('bcryptjs');
 const User = require('../models/user.model');
 
 /**
@@ -76,6 +77,24 @@ exports.update = (req, res, next) => {
     .save()
     .then((savedUser) => res.json(savedUser.transform()))
     .catch((e) => next(User.checkDuplicateEmail(e)));
+};
+
+/**
+ * Update password for existing user
+ * @public
+ */
+exports.changePassword = (req, res, next) => {
+  // const ommitRole = req.locals.user.role !== 'admin' ? 'role' : '';
+  // const updatedUser = omit(req.body, ommitRole);
+  // const user = Object.assign(req.locals.user, updatedUser);
+  const userId = req.locals._id;
+  const { password, newPassword } = req.body;
+
+  if(bcrypt.compare(password, this.password))
+  // user
+  //   .save()
+  //   .then((savedUser) => res.json(savedUser.transform()))
+  //   .catch((e) => next(User.checkDuplicateEmail(e)));
 };
 
 /**
